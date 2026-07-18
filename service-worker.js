@@ -33,6 +33,11 @@ const FILES_TO_CACHE = [
   "./config.js",
   "./api.js",
   "./print.js",
+  "./oncall-now.js",
+  "./myweek.js",
+  "./features.css",
+  "./tv.html",
+  "./tv.js",
   "./manifest.json"
 ];
 
