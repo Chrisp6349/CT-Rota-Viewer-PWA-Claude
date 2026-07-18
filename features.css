@@ -1,0 +1,352 @@
+/* =====================================================
+   Cardiothoracic Theatre Viewer
+   features.css
+   -----------------------------------------------------
+   Styles for the newer features, kept separate from the
+   original styles.css so that file stays untouched:
+     - splash heartbeat + animated ECG
+     - ON CALL NOW hero card
+     - My Week overlay
+     - dark mode
+     - TV / wall-board mode
+   ===================================================== */
+
+/* ------------------------------------------------------
+   Splash: beating heart logo + ECG sweep
+   ------------------------------------------------------ */
+
+.splash-logo {
+    animation: heartbeat 1.2s ease-in-out infinite;
+}
+
+/* Two quick beats then rest - like a real cardiac cycle */
+@keyframes heartbeat {
+    0%   { transform: scale(1); }
+    14%  { transform: scale(1.12); }
+    28%  { transform: scale(1); }
+    42%  { transform: scale(1.09); }
+    56%  { transform: scale(1); }
+    100% { transform: scale(1); }
+}
+
+.splash-ecg {
+    width: 240px;
+    height: 44px;
+    margin: 10px auto 0;
+    display: block;
+}
+
+.splash-ecg path {
+    fill: none;
+    stroke: #7FDBFF;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-dasharray: 420;
+    stroke-dashoffset: 420;
+    animation: ecg-sweep 2.4s linear infinite;
+}
+
+@keyframes ecg-sweep {
+    0%   { stroke-dashoffset: 420; opacity: 1; }
+    70%  { stroke-dashoffset: 0;   opacity: 1; }
+    85%  { opacity: 0; }
+    100% { stroke-dashoffset: 420; opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .splash-logo, .splash-ecg path, .now-pulse { animation: none !important; }
+}
+
+/* ------------------------------------------------------
+   ON CALL NOW hero card
+   ------------------------------------------------------ */
+
+.oncall-now {
+    margin: 14px auto 4px;
+    max-width: 720px;
+    border-radius: 14px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.now-active {
+    background: linear-gradient(120deg, #B71C1C, #D32F2F);
+    color: #fff;
+    box-shadow: 0 4px 18px rgba(183, 28, 28, .35);
+}
+
+.now-upcoming {
+    background: #FFF4E5;
+    border: 2px solid #ED8B00;
+    color: #6b4300;
+}
+
+.now-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: .08em;
+    white-space: nowrap;
+}
+
+.now-pulse {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    animation: nowpulse 1.2s ease-out infinite;
+}
+
+@keyframes nowpulse {
+    0%   { box-shadow: 0 0 0 0 rgba(255,255,255,.7); }
+    100% { box-shadow: 0 0 0 12px rgba(255,255,255,0); }
+}
+
+.now-people { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+.now-person { font-size: 18px; font-weight: 800; }
+.now-anaes  { font-size: 16px; font-weight: 600; opacity: .95; }
+.now-session, .now-extra { font-size: 13px; font-weight: 700; }
+.now-fromhome {
+    background: rgba(255,255,255,.22);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 13px;
+    font-weight: 800;
+}
+.now-upcoming .now-fromhome { background: rgba(237,139,0,.18); }
+
+/* ------------------------------------------------------
+   My Week overlay
+   ------------------------------------------------------ */
+
+#myWeekOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 20, 40, .55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 16px;
+}
+
+.myweek-card {
+    background: #fff;
+    color: #212B32;
+    border-radius: 16px;
+    padding: 20px 22px;
+    width: min(440px, 100%);
+    max-height: 84vh;
+    overflow-y: auto;
+    box-shadow: 0 12px 40px rgba(0,0,0,.3);
+}
+
+.myweek-card h2 { margin: 0 0 4px; font-size: 20px; }
+.myweek-hint { margin: 0 0 14px; color: #4C6272; font-size: 13.5px; }
+
+.myweek-names { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+
+.myweek-name {
+    font: inherit;
+    font-weight: 700;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 2px solid #C6CED4;
+    background: #fff;
+    cursor: pointer;
+}
+.myweek-name:hover { border-color: #005EB8; color: #005EB8; }
+
+.myweek-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+
+.myweek-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #F4F6F8;
+    border-radius: 10px;
+    padding: 10px 12px;
+}
+
+.myweek-oncall { background: #FDECEA; }
+
+.myweek-day  { font-weight: 800; width: 42px; color: #005EB8; flex: none; }
+.myweek-what { font-weight: 600; }
+
+.myweek-actions { display: flex; justify-content: space-between; gap: 10px; }
+
+.myweek-close, .myweek-switch {
+    font: inherit;
+    font-weight: 700;
+    padding: 9px 14px;
+    border-radius: 8px;
+    border: 2px solid #C6CED4;
+    background: #fff;
+    cursor: pointer;
+}
+.myweek-close { background: #005EB8; border-color: #005EB8; color: #fff; }
+
+/* Toolbar buttons for My Week / TV / dark mode */
+.feature-btn {
+    font: inherit;
+    font-size: 13.5px;
+    font-weight: 700;
+    padding: 8px 13px;
+    border-radius: 999px;
+    border: 2px solid #C6CED4;
+    background: #fff;
+    color: #212B32;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    display: inline-block;
+}
+.feature-btn:hover { border-color: #005EB8; color: #005EB8; }
+
+.feature-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 10px 0 2px;
+}
+
+/* ------------------------------------------------------
+   Dark mode
+   ------------------------------------------------------
+   Toggled by setting data-theme="dark" on <html>. Uses
+   broad overrides so the original styles.css stays as-is.
+   ------------------------------------------------------ */
+
+html[data-theme="dark"] body { background: #10161f; color: #E4E9EF; }
+
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .theatre-card,
+html[data-theme="dark"] .dashboard-panel,
+html[data-theme="dark"] .weekend-card,
+html[data-theme="dark"] .myweek-card {
+    background: #1B2430;
+    color: #E4E9EF;
+    box-shadow: 0 2px 10px rgba(0,0,0,.5);
+}
+
+html[data-theme="dark"] .card-body { color: #E4E9EF; }
+html[data-theme="dark"] .info { color: #B9C4D0; }
+
+html[data-theme="dark"] .day-tab,
+html[data-theme="dark"] .feature-btn,
+html[data-theme="dark"] .myweek-name,
+html[data-theme="dark"] .myweek-switch,
+html[data-theme="dark"] .nav-arrow,
+html[data-theme="dark"] #weekSelect {
+    background: #1B2430;
+    color: #E4E9EF;
+    border-color: #3A4656;
+}
+
+html[data-theme="dark"] .day-tab.active { background: #005EB8; color: #fff; }
+html[data-theme="dark"] .myweek-row { background: #232E3C; }
+html[data-theme="dark"] .myweek-oncall { background: #3A2022; }
+html[data-theme="dark"] .myweek-hint { color: #93A1B1; }
+html[data-theme="dark"] footer { background: #0B1017; color: #93A1B1; }
+html[data-theme="dark"] .now-upcoming { background: #2A2115; border-color: #ED8B00; color: #FFD9A0; }
+
+/* ------------------------------------------------------
+   TV / wall-board mode
+   ------------------------------------------------------ */
+
+body.tv {
+    margin: 0;
+    min-height: 100vh;
+    background: #0B1017;
+    color: #E4E9EF;
+    font-family: Arial, -apple-system, "Segoe UI", Helvetica, sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+.tv-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 34px;
+    background: #003087;
+    color: #fff;
+}
+
+.tv-header h1 { margin: 0; font-size: 34px; }
+.tv-header p  { margin: 4px 0 0; font-size: 20px; color: #B8D4F0; }
+
+.tv-clock {
+    font-size: 58px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.tv-oncall {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 26px;
+    flex-wrap: wrap;
+    padding: 16px 30px;
+    background: #3A2022;
+    font-size: 26px;
+}
+
+.tv-oncall-active { background: linear-gradient(120deg, #B71C1C, #D32F2F); }
+
+.tv-oncall-label  { font-weight: 800; letter-spacing: .06em; }
+.tv-oncall-people { font-weight: 700; }
+
+#tvGrid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+    padding: 26px 34px;
+    align-content: start;
+}
+
+.tv-card { background: #1B2430; border-radius: 16px; overflow: hidden; }
+.tv-wide { grid-column: 1 / -1; }
+
+.tv-card-head {
+    background: #005EB8;
+    color: #fff;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: .05em;
+    padding: 12px 18px;
+}
+
+.tv-card-body { padding: 14px 18px; }
+
+.tv-line { font-size: 26px; font-weight: 700; padding: 4px 0; }
+.tv-list { color: #7FDBFF; font-size: 21px; }
+.tv-dim  { color: #5B6B7D; }
+
+.tv-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-size: 30px;
+    color: #5B6B7D;
+    padding: 60px 0;
+}
+
+.tv-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 34px;
+    background: #003087;
+    color: #B8D4F0;
+    font-size: 16px;
+}
+
+@media (max-width: 1100px) { #tvGrid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 700px)  { #tvGrid { grid-template-columns: 1fr; } .tv-clock { font-size: 40px; } }
