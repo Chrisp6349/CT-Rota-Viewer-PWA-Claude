@@ -89,13 +89,13 @@ class OnCallNow {
             people += `<div class="now-person">👤 ${oc.odp1 || oc.odp || "-"}${oc.session1 ? ` <span class="now-session">${oc.session1}</span>` : ""}</div>`;
             if (oc.odp2)
                 people += `<div class="now-person">👤 ${oc.odp2}${oc.session2 ? ` <span class="now-session">${oc.session2}</span>` : ""}</div>`;
-            people += `<div class="now-anaes">👨‍⚕️ ${oc.anaesthetist || "-"}</div>`;
+            people += `<div class="now-anaes">${oc.anaesthetist ? anaesEmoji(oc.anaesthetist) : "👨‍⚕️"} ${oc.anaesthetist || "-"}</div>`;
         } else {
             const oc = value.onCall || {};
             people += `<div class="now-person">👤 ${oc.odp || "-"}</div>`;
             if (oc.extra) people += `<div class="now-extra">🟡 ${oc.extra}</div>`;
             if (oc.fromHome) people += `<div class="now-fromhome">🏠 FROM HOME</div>`;
-            people += `<div class="now-anaes">👨‍⚕️ ${oc.anaesthetist || "-"}</div>`;
+            people += `<div class="now-anaes">${oc.anaesthetist ? anaesEmoji(oc.anaesthetist) : "👨‍⚕️"} ${oc.anaesthetist || "-"}</div>`;
         }
 
         mount.innerHTML = `
