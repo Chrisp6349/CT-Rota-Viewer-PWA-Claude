@@ -36,8 +36,12 @@ async function tvLoad() {
         const value = rota.days[day];
 
         // On-call panel reuses the same rules as the dashboard card
-        const s = OnCallNow.status(now);
-        const ocValue = rota.days[s.dayKey] || {};
+              const s = OnCallNow.status(now);
+        // Guard: the cover period may belong to a different week than
+        // the loaded rota (e.g. early Monday = last week's Sunday)
+        const ocValue = (rota.week === OnCallNow.coverWeek(now))
+            ? (rota.days[s.dayKey] || {}) : {};
+
         const oc = ocValue.onCall || {};
         let ocPeople;
         if (s.weekend) {
