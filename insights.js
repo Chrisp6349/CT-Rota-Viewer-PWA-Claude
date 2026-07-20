@@ -17,35 +17,125 @@ class TheatreIntelligence {
             }];
         }
 
-        let totalLists = 0;
+        let totalSessions = 0;
         let busiestDay = "";
         let busiestCount = 0;
 
+        const odpWorkload = {};
+        const theatreUsage = {};
+        let onCallCount = 0;
+        const alerts = [];
+
         for (const [day, value] of Object.entries(rota.days)) {
 
-            const count = (value.theatres || []).filter(t =>
-                t.odp1 || t.odp2 || t.anaesthetist || t.list
-            ).length;
+            let dayCount = 0;
 
-            totalLists += count;
+            (value.theatres || []).forEach(theatre => {
 
-            if (count > busiestCount) {
-                busiestCount = count;
+                const hasAllocation =
+                    theatre.odp1 ||
+                    theatre.odp2 ||
+                    theatre.anaesthetist ||
+                    theatre.list;
+
+                if (!hasAllocation) return;
+
+                dayCount++;
+                totalSessions++;
+
+                const theatreName = theatre.name || "Unknown";
+                theatreUsage[theatreName] =
+                    (theatreUsage[theatreName] || 0) + 1;
+
+                if (theatre.odp1) {
+                    odpWorkload[theatre.odp1] =
+                        (odpWorkload[theatre.odp1] || 0) + 1;
+                }
+
+                if (theatre.odp2) {
+                    odpWorkload[theatre.odp2] =
+                        (odpWorkload[theatre.odp2] || 0) + 1;
+                }
+
+                if (!theatre.odp1) {
+                    alerts.push(`${day}: ${theatreName} has no allocated ODP.`);
+                }
+
+            });
+
+            if (dayCount > busiestCount) {
+                busiestCount = dayCount;
                 busiestDay = day;
+            }
+
+            if (value.onCall && value.onCall.odp) {
+                onCallCount++;
             }
         }
 
-        return [
-            {
-                icon: "📅",
-                title: "Weekly Summary",
-                text: `There are ${totalLists} allocated theatre sessions this week.`
-            },
-            {
-                icon: "⭐",
-                title: "Busiest Day",
-                text: `${busiestDay} has the busiest schedule with ${busiestCount} allocated theatres.`
+        const uniqueODPs = Object.keys(odpWorkload).length;
+
+        let leader = "-";
+        let leaderCount = 0;
+
+        Object.entries(odpWorkload).forEach(([name, count]) => {
+            if (count > leaderCount) {
+                leader = name;
+                leaderCount = count;
             }
+        });
+
+        let busiestTheatre = "-";
+        let theatreCount = 0;
+
+        Object.entries(theatreUsage).forEach(([name, count]) => {
+            if (count > theatreCount) {
+                busiestTheatre = name;
+                theatreCount = count;
+            }
+        });
+
+        return [
+
+            {
+                icon: "📊",
+                title: "Weekly Snapshot",
+                text:
+`🏥 Theatre Sessions: ${totalSessions}
+
+👥 Senior ODPs: ${uniqueODPs}
+
+🚨 On Calls: ${onCallCount}
+
+⭐ Busiest Day: ${busiestDay}`
+            },
+
+            {
+                icon: "👑",
+                title: "Workload Leader",
+                text:
+`${leader}
+
+${leaderCount} theatre allocation${leaderCount === 1 ? "" : "s"} this week.`
+            },
+
+            {
+                icon: "🏥",
+                title: "Theatre Usage",
+                text:
+`${busiestTheatre}
+
+Used ${theatreCount} time${theatreCount === 1 ? "" : "s"} this week.`
+            },
+
+            {
+                icon: alerts.length ? "⚠️" : "✅",
+                title: "Staffing Alert",
+                text: alerts.length
+                    ? alerts[0]
+                    : "Excellent! All allocated theatres have an ODP."
+            }
+
         ];
     }
 
