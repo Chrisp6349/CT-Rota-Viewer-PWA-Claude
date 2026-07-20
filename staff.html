@@ -1,0 +1,43 @@
+<!-- =====================================================
+     Cardiothoracic Theatre Viewer - Staff Profiles
+     Searchable profile page for ODPs and anaesthetists,
+     built from every published week of history.
+     ===================================================== -->
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Staff Profiles</title>
+<meta name="theme-color" content="#005EB8">
+<link rel="stylesheet" href="staff.css">
+<script>
+if (localStorage.getItem("theme") === "dark") {
+    document.documentElement.dataset.theme = "dark";
+}
+</script>
+</head>
+<body>
+
+<header class="staff-header">
+    <a href="index.html" class="staff-back">← Daily Dashboard</a>
+    <h1>📊 Staff Profiles</h1>
+    <p class="staff-subtitle">Search any ODP or anaesthetist to see their record</p>
+</header>
+
+<div class="staff-search-wrap">
+    <input id="staffSearchInput" type="text" placeholder="Search a name…" autocomplete="off">
+    <div id="staffResults" class="staff-results hidden"></div>
+</div>
+
+<main id="staffProfile"></main>
+
+<script src="version.js"></script>
+<script src="config.js"></script>
+<script src="api.js"></script>
+<script src="viewer-utils.js"></script>
+<script src="insights.js"></script>
+<script src="staff.js"></script>
+
+</body>
+</html>
