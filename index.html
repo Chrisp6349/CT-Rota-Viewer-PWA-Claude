@@ -140,15 +140,17 @@ if (localStorage.getItem("theme") === "dark") {
     </button>
 </div>
 
-<section id="statusBar">
+
 
 <!-- ===============================
      Insights Panel
+     (sits outside statusBar - it's an overlay, not status text)
 ================================ -->
 
 <div id="insightsOverlay" class="hidden"></div>
 
 <section id="insightsPanel" class="hidden">
+
 
     <div class="drag-handle"></div>
 
@@ -216,14 +218,20 @@ if (localStorage.getItem("theme") === "dark") {
 </div>
 </section>
 
-<div id="loading" class="hidden">
-    🫀 Loading Published Rota...
-</div>
-
-<div id="error" class="hidden">
-    Unable to load rota.
-</div>
 </section>
+
+<section id="statusBar">
+
+    <div id="loading" class="hidden">
+        🫀 Loading Published Rota...
+    </div>
+
+    <div id="error" class="hidden">
+        Unable to load rota.
+    </div>
+
+</section>
+
 
 
 <main id="rotaContainer">
