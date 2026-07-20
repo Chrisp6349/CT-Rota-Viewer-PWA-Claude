@@ -5,8 +5,7 @@
    "Theatre Intelligence" - four random fun facts drawn
    from every published week up to and including today
    (never future weeks). A fresh random 4 are picked
-   every time the panel is opened, along with a fresh
-   time-of-day greeting and rotating tagline.
+   every time the panel is opened.
 
    Fact types:
    - Simple counts: on-calls, theatre sessions, busiest
@@ -47,6 +46,10 @@ class TheatreIntelligence {
         const theatreCounts = {};      // theatre name -> count
         const dayCounts = {};          // day name -> session count
         const pairings = {};           // "odp|anaes" -> count
+        const supportCounts = {};      // odp -> support-role count
+        const personTheatreCounts = {};// "odp|theatre" -> count, for favourite theatre
+        const listCounts = {};         // list type -> count
+        const waitingListCounts = {};  // odp -> weekend waiting-list count
         let totalSessions = 0;
         let totalOnCalls = 0;
         let staffingGaps = 0;
@@ -65,8 +68,12 @@ class TheatreIntelligence {
                         ? "Cath Lab" : t.theatre.replace("Theatre ", "CT");
                     theatreCounts[label] = (theatreCounts[label] || 0) + 1;
 
+                    if (t.list) listCounts[t.list] = (listCounts[t.list] || 0) + 1;
+
                     [t.odp1, t.odp2].filter(Boolean).forEach(odp => {
                         sessionCounts[odp] = (sessionCounts[odp] || 0) + 1;
+                        const ptKey = odp + "|" + label;
+                        personTheatreCounts[ptKey] = (personTheatreCounts[ptKey] || 0) + 1;
                         if (t.anaesthetist) {
                             const key = odp + "|" + t.anaesthetist;
                             pairings[key] = (pairings[key] || 0) + 1;
@@ -74,6 +81,12 @@ class TheatreIntelligence {
                     });
 
                     if (!t.odp1 && !t.odp2) staffingGaps++;
+                });
+
+                // Support-role counts (weekday support panel)
+                const s = value.support || {};
+                [s.odp1, s.odp2, s.odp3].filter(Boolean).forEach(odp => {
+                    supportCounts[odp] = (supportCounts[odp] || 0) + 1;
                 });
 
                 const oc = value.onCall || {};
@@ -86,12 +99,19 @@ class TheatreIntelligence {
                     onCallCounts[odp] = (onCallCounts[odp] || 0) + 1;
                     totalOnCalls++;
                 });
+
+                // Weekend waiting-list cover
+                if (value.weekend && value.waitingList && value.waitingList.odp) {
+                    const odp = value.waitingList.odp;
+                    waitingListCounts[odp] = (waitingListCounts[odp] || 0) + 1;
+                }
             });
         });
 
         return {
             weekCount: rotas.length,
             onCallCounts, sessionCounts, theatreCounts, dayCounts, pairings,
+            supportCounts, personTheatreCounts, listCounts, waitingListCounts,
             totalSessions, totalOnCalls, staffingGaps
         };
     }
@@ -128,7 +148,7 @@ class TheatreIntelligence {
             });
         });
 
-               // --- Pairing facts ---
+        // --- Pairing facts ---
         Object.entries(stats.pairings).forEach(([key, count]) => {
             if (count < 2) return;   // only surface pairings that have actually repeated
             const [odp, anaes] = key.split("|");
@@ -140,6 +160,87 @@ class TheatreIntelligence {
             });
         });
 
+        // --- Support-role facts, per person ---
+        Object.entries(stats.supportCounts).forEach(([name, count]) => {
+            facts.push({
+                icon: "🧑‍🤝‍🧑",
+                text: `${name} has supported theatres ${count} time${count === 1 ? "" : "s"} ${since}.`
+            });
+        });
+
+        // --- Favourite theatre, per person (only where it's a clear lead) ---
+        (() => {
+            const byPerson = {};   // odp -> { theatre: count }
+            Object.entries(stats.personTheatreCounts).forEach(([key, count]) => {
+                const [odp, theatre] = key.split("|");
+                byPerson[odp] = byPerson[odp] || {};
+                byPerson[odp][theatre] = count;
+            });
+            Object.entries(byPerson).forEach(([odp, theatres]) => {
+                const fav = TheatreIntelligence.top(theatres);
+                if (fav && fav.count > 1) {
+                    facts.push({
+                        icon: "❤️",
+                        text: `${odp}'s favourite theatre is ${fav.name}, worked ${fav.count} times ${since}.`
+                    });
+                }
+            });
+        })();
+
+        // --- Most common list type ---
+        const topList = TheatreIntelligence.top(stats.listCounts);
+        if (topList && topList.count > 1) {
+            facts.push({
+                icon: "📋",
+                text: `${topList.name} has been the most common list type ${since}, run ${topList.count} times.`
+            });
+        }
+
+        // --- Quietest theatre (only among theatres that HAVE run at least once) ---
+        (() => {
+            const entries = Object.entries(stats.theatreCounts);
+            if (entries.length > 1) {
+                let name = null, least = Infinity;
+                entries.forEach(([n, c]) => { if (c < least) { least = c; name = n; } });
+                facts.push({
+                    icon: "🤫",
+                    text: `${name} has been the quietest theatre ${since}, used just ${least} time${least === 1 ? "" : "s"}.`
+                });
+            }
+        })();
+
+        // --- Quietest day (only among days that HAVE had sessions) ---
+        (() => {
+            const entries = Object.entries(stats.dayCounts);
+            if (entries.length > 1) {
+                let name = null, least = Infinity;
+                entries.forEach(([n, c]) => { if (c < least) { least = c; name = n; } });
+                facts.push({
+                    icon: "😴",
+                    text: `${name} has been the quietest operating day ${since}.`
+                });
+            }
+        })();
+
+        // --- Top overall pairing (the single most frequent ODP+anaesthetist combo) ---
+        const topPairing = TheatreIntelligence.top(stats.pairings);
+        if (topPairing && topPairing.count > 1) {
+            const [odp, anaes] = topPairing.name.split("|");
+            const emoji = (typeof anaesEmoji === "function") ? anaesEmoji(anaes) : "👨‍⚕️";
+            const anaesFullName = (typeof anaesName === "function") ? anaesName(anaes) : anaes;
+            facts.push({
+                icon: "🏅",
+                text: `${odp} and ${emoji} ${anaesFullName} are the most frequent pairing ${since}, working together ${topPairing.count} times.`
+            });
+        }
+
+        // --- Weekend waiting-list facts, per person ---
+        Object.entries(stats.waitingListCounts).forEach(([name, count]) => {
+            facts.push({
+                icon: "📝",
+                text: `${name} has covered the weekend waiting list ${count} time${count === 1 ? "" : "s"} ${since}.`
+            });
+        });
 
         // --- Busiest theatre overall ---
         const busiestTheatre = TheatreIntelligence.top(stats.theatreCounts);
