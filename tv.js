@@ -125,7 +125,7 @@ setInterval(tvLoad, TV_REFRESH_MS);
    weeks without needing a page reload.
 ========================================== */
 
-const TICKER_HOLD_MS = 5000;     // how long each fact stays fully visible
+const TICKER_HOLD_MS = 8000;     // how long each fact stays fully visible
 const TICKER_TRANSITION_MS = 600; // must match the CSS transition duration
 
 let tickerPool = [];
