@@ -191,3 +191,46 @@
 .hidden{
     display:none;
 }
+/* Navigation */
+
+.insights-footer{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:22px;
+    padding:0 20px 22px;
+}
+
+.insight-nav{
+    width:46px;
+    height:46px;
+    border:none;
+    border-radius:50%;
+    background:#0b7cff;
+    color:white;
+    font-size:1.2rem;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.insight-nav:hover{
+    transform:scale(1.05);
+}
+
+.insight-dots{
+    display:flex;
+    gap:10px;
+}
+
+.dot{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:#bdbdbd;
+    transition:.25s;
+}
+
+.dot.active{
+    background:#0b7cff;
+    transform:scale(1.35);
+}
