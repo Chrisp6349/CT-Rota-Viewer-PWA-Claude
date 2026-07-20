@@ -113,3 +113,63 @@ async function tvLoad() {
 
 tvLoad();
 setInterval(tvLoad, TV_REFRESH_MS);
+
+/* ==========================================
+   Fact ticker (screensaver-style loop)
+   ------------------------------------------
+   Cycles through Theatre Intelligence's full fact pool -
+   each fact slides in, holds for a few seconds, slides
+   out, then the next one takes its turn. Loops forever.
+   The underlying pool is refreshed alongside the normal
+   5-minute data refresh, so it picks up newly published
+   weeks without needing a page reload.
+========================================== */
+
+const TICKER_HOLD_MS = 5000;     // how long each fact stays fully visible
+const TICKER_TRANSITION_MS = 600; // must match the CSS transition duration
+
+let tickerPool = [];
+let tickerIndex = 0;
+
+async function refreshTickerPool() {
+    try {
+        const rotas = await TheatreIntelligence.loadHistory();
+        if (!rotas.length) { tickerPool = []; return; }
+
+        const stats = TheatreIntelligence.buildStats(rotas);
+        const streaks = TheatreIntelligence.buildStreaks(rotas);
+        const pool = TheatreIntelligence.buildFactPool(stats, streaks);
+
+        // Shuffle once per refresh so the order varies day to day
+        tickerPool = TheatreIntelligence.randomPick(pool, pool.length);
+        tickerIndex = 0;
+    } catch (err) {
+        console.error("Ticker pool refresh failed:", err);
+    }
+}
+
+function tickerStep() {
+    const el = document.getElementById("tvTickerText");
+    if (!el || !tickerPool.length) {
+        // Nothing to show yet - check again shortly
+        setTimeout(tickerStep, 2000);
+        return;
+    }
+
+    const fact = tickerPool[tickerIndex % tickerPool.length];
+    tickerIndex++;
+
+    el.textContent = `${fact.icon} ${fact.text}`;
+
+    // Fade/slide in
+    requestAnimationFrame(() => el.classList.add("show"));
+
+    // Hold, then fade/slide out, then move to the next fact
+    setTimeout(() => {
+        el.classList.remove("show");
+        setTimeout(tickerStep, TICKER_TRANSITION_MS);
+    }, TICKER_HOLD_MS);
+}
+
+refreshTickerPool().then(tickerStep);
+setInterval(refreshTickerPool, TV_REFRESH_MS);
