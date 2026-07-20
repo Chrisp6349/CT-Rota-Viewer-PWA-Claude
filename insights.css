@@ -129,7 +129,7 @@
     padding: 16px;
     border: none;
     border-radius: 14px;
-    background: #0b7cff;
+    background: #005EB8;
     color: white;
     font-size: 1rem;
     font-weight: 600;
@@ -149,15 +149,15 @@
    Dark Mode
 ============================ */
 
-.dark-mode #insightsPanel {
+html[data-theme="dark"] #insightsPanel {
     background: #1e1e1e;
 }
 
-.dark-mode .insights-header p {
+html[data-theme="dark"] .insights-header p {
     color: #bdbdbd;
 }
 
-.dark-mode .drag-handle {
+html[data-theme="dark"] .drag-handle {
     background: #555;
 }
 /* Weekly Snapshot Dashboard */
@@ -211,7 +211,7 @@
     height:46px;
     border:none;
     border-radius:50%;
-    background:#0b7cff;
+    background:#005EB8;
     color:white;
     font-size:1.2rem;
     cursor:pointer;
@@ -236,6 +236,6 @@
 }
 
 .dot.active{
-    background:#0b7cff;
+    background:#005EB8;
     transform:scale(1.35);
 }
